@@ -1,0 +1,16 @@
+Select first,
+SUM(CASE WHEN week_number = 0 THEN 1 ELSE 0 END) AS week_0,
+SUM(CASE WHEN week_number = 1 THEN 1 ELSE 0 END) AS week_1,
+SUM(CASE WHEN week_number = 2 THEN 1 ELSE 0 END) AS week_2,
+SUM(CASE WHEN week_number = 3 THEN 1 ELSE 0 END) AS week_3,
+SUM(CASE WHEN week_number = 4 THEN 1 ELSE 0 END) AS week_4
+FROM
+(SELECT m.user_id, m.login_week, n.first AS first,m.login_week-first as week_number 
+FROM (
+SELECT user_id,EXTRACT(week FROM act_date) AS login_week 
+FROM login GROUP BY user_id, login_week )m,
+(SELECT user_id,MIN(extract(week FROM act_date)) AS first 
+FROM login 
+GROUP BY user_id)n 
+WHERE m.user_id = n.user_id ) as with_week_number
+group by first order by first;
